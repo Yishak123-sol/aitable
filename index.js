@@ -25,7 +25,6 @@ export default async function handler(req, res) {
     const FIXED_PASSWORD = "Pass12345@";
 
     try {
-        // 1️⃣ Fetch all records from AITable
         const getResponse = await fetch(AITABLE_API_URL, {
             headers: {
                 Authorization: `Bearer ${AITABLE_TOKEN}`
@@ -37,9 +36,9 @@ export default async function handler(req, res) {
         if (records.length === 0) {
             return res.status(200).json({ message: "No records found in AITable." });
         }
-        console.log(records);
         let syncedCount = 0;
         let skippedCount = 0;
+        let totalCount = records.length;
 
         // 2️⃣ Process each record
         for (const record of records) {
@@ -61,6 +60,7 @@ export default async function handler(req, res) {
                 displayname.trim() === ""
             ) {
                 console.log(`⚠️ Skipping incomplete record: ${record.recordId}`);
+
                 skippedCount++;
                 continue;
             }
@@ -118,7 +118,7 @@ export default async function handler(req, res) {
         }
 
         return res.status(200).json({
-            message: `✅ Sync complete. Created ${syncedCount} users. Skipped ${skippedCount} incomplete records.`
+            message: `✅ Sync complete. Created ${syncedCount} users. Skipped ${skippedCount} incomplete records. Total records: ${totalCount}`
         });
     } catch (error) {
         console.error("❌ Error in sync-users handler:", error);
